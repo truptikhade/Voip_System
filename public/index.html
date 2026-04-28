@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoIP Phone System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <div id="loginSection" class="section active">
+            <div class="login-box">
+                <h1>☎️ VoIP Phone System</h1>
+                <input 
+                    type="text" 
+                    id="usernameInput" 
+                    placeholder="Enter name" 
+                    class="input-field"
+                />
+                <input 
+                    type="tel" 
+                    id="phoneNumberInput" 
+                    placeholder="Your phone number (optional)" 
+                    class="input-field"
+                />
+                <button id="loginBtn" class="btn btn-primary">Login</button>
+            </div>
+        </div>
+
+        <!-- Main VoIP Section -->
+        <div id="callSection" class="section">
+            <!-- Header -->
+            <div class="voip-header">
+                <div class="phone-info">
+                    <h1>☎️ VoIP System</h1>
+                    <div class="user-details">
+                        <span id="currentUsername"></span> | <span id="currentPhoneNumber"></span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                </div>
+            </div>
+
+            <div class="voip-container">
+                <!-- Left Panel: Contacts & Dial Pad -->
+                <div class="left-panel">
+                    <!-- Dial Pad -->
+                    <div class="dial-pad-section">
+                        <h3>📞 Dial Pad</h3>
+                        <div class="phone-display">
+                            <input 
+                                type="tel" 
+                                id="dialDisplay" 
+                                class="dial-display" 
+                                placeholder="Phone number"
+                                readonly
+                            />
+                        </div>
+                        <div class="keypad">
+                            <button class="key" onclick="dialKey('1')">1</button>
+                            <button class="key" onclick="dialKey('2')">2<span>ABC</span></button>
+                            <button class="key" onclick="dialKey('3')">3<span>DEF</span></button>
+                            <button class="key" onclick="dialKey('4')">4<span>GHI</span></button>
+                            <button class="key" onclick="dialKey('5')">5<span>JKL</span></button>
+                            <button class="key" onclick="dialKey('6')">6<span>MNO</span></button>
+                            <button class="key" onclick="dialKey('7')">7<span>PQRS</span></button>
+                            <button class="key" onclick="dialKey('8')">8<span>TUV</span></button>
+                            <button class="key" onclick="dialKey('9')">9<span>WXYZ</span></button>
+                            <button class="key" onclick="dialKey('*')">*</button>
+                            <button class="key" onclick="dialKey('0')">0<span>+</span></button>
+                            <button class="key" onclick="dialKey('#')">#</button>
+                        </div>
+                        <div class="dial-actions">
+                            <button id="clearBtn" class="btn btn-secondary" onclick="clearDial()">Clear</button>
+                            <button id="callDialBtn" class="btn btn-success" onclick="callFromDial()">Call</button>
+                            <button id="backspaceBtn" class="btn btn-secondary" onclick="backspaceDial()">⌫</button>
+                        </div>
+                    </div>
+
+                    <!-- Contacts -->
+                    <div class="contacts-section">
+                        <h3>👥 Contacts</h3>
+                        <div id="usersList" class="users-list"></div>
+                    </div>
+                </div>
+
+                <!-- Center Panel: Active Call -->
+                <div class="center-panel">
+                    <!-- Call Area -->
+                    <div class="call-area">
+                        <div class="audio-container">
+                            <audio id="remoteAudio" playsinline autoplay></audio>
+                            <audio id="localAudio" playsinline muted autoplay></audio>
+                        </div>
+
+                        <!-- Call Status -->
+                        <div id="callStatus" class="call-status">
+                            <div class="status-content">
+                                <h2 id="statusTitle">Ready to Call</h2>
+                                <p id="statusMessage"></p>
+                                <div id="callTimer" class="call-timer hidden">00:00</div>
+                            </div>
+                        </div>
+
+                        <!-- Incoming Call Notification -->
+                        <div id="incomingCallNotification" class="notification hidden">
+                            <div class="notification-content">
+                                <p>📞 Incoming call from <span id="incomingCallerId"></span></p>
+                                <div class="notification-actions">
+                                    <button id="acceptCallBtn" class="btn btn-success">Accept</button>
+                                    <button id="rejectCallBtn" class="btn btn-danger">Reject</button>
+                                    <button id="voicemailBtn" class="btn btn-secondary">Voicemail</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Call Controls -->
+                        <div id="callControls" class="call-controls hidden">
+                            <button id="muteBtn" class="btn btn-control" title="Mute">🔊</button>
+                            <button id="recordBtn" class="btn btn-control" title="Record Call">⏺️</button>
+                            <button id="transferBtn" class="btn btn-control" title="Transfer Call">↔️</button>
+                            <button id="holdBtn" class="btn btn-control" title="Hold">⏸️</button>
+                            <button id="hangupBtn" class="btn btn-danger btn-large">End Call</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Stats & Features -->
+                <div class="right-panel">
+                    <!-- Call Quality Stats -->
+                    <div class="stats-panel">
+                        <h3>📊 Call Quality</h3>
+                        <div id="statsContainer" class="stats-container">
+                            <div class="stat-item">
+                                <label>Latency:</label>
+                                <span id="latencyStat" class="stat-value">-- ms</span>
+                            </div>
+                            <div class="stat-item">
+                                <label>Packet Loss:</label>
+                                <span id="packetLossStat" class="stat-value">-- %</span>
+                            </div>
+                            <div class="stat-item">
+                                <label>Jitter:</label>
+                                <span id="jitterStat" class="stat-value">-- ms</span>
+                            </div>
+                            <div class="stat-item">
+                                <label>Bandwidth:</label>
+                                <span id="bandwidthStat" class="stat-value">-- Kbps</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Call Queue -->
+                    <!-- <div class="queue-panel">
+                        <h3>📋 Call Queue</h3>
+                        <div id="callQueue" class="call-queue">
+                            <p style="color: #999; text-align: center;">No calls queued</p>
+                        </div>
+                    </div> -->
+
+                    <!-- Voicemail -->
+                    <div class="voicemail-panel">
+                        <h3>🎙️ Voicemail</h3>
+                        <div class="voicemail-count">
+                            <span id="voicemailCount" class="badge">0</span> messages
+                        </div>
+                        <div id="voicemailList" class="voicemail-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call History -->
+            <div class="history-panel">
+                <div class="history-header">
+                    <h3>📞 Call History</h3>
+                    <button id="clearHistoryBtn" class="btn btn-secondary" onclick="clearHistory()">Clear</button>
+                </div>
+                <div id="callHistory" class="call-history">
+                    <p style="color: #999; text-align: center;">No call history</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div id="transferModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeTransferModal()">&times;</span>
+            <h3>Transfer Call</h3>
+            <p>Select a contact to transfer to:</p>
+            <div id="transferContacts" class="transfer-contacts"></div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="voip-app.js"></script>
+</body>
+</html>
